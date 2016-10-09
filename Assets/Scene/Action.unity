@@ -2743,6 +2743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   screen_drag_: {fileID: 1395510953}
+  canvas_ccaler_: {fileID: 657859678}
   full_screen_: {fileID: 16066566}
   description_: {fileID: 1795953943}
   attack_: {fileID: 1760408577}

@@ -16,6 +16,9 @@ public class UIEdit : MonoBehaviour {
     private ScreenDrag screen_drag_ = null;
 
     [SerializeField]
+    private CanvasScaler canvas_ccaler_ = null;
+
+    [SerializeField]
     private Image full_screen_ = null;
 
     [SerializeField]
@@ -45,13 +48,41 @@ public class UIEdit : MonoBehaviour {
     [SerializeField]
     private Image camera_zoom_down_ = null;
 
-    private Vector2 move_ = Vector2.zero;
+    private Vector2 reference_ = Vector2.zero;
+    private Vector2 move_      = Vector2.zero;
+
+    private float screen_w_ = 0.0f;
+    private float screen_h_ = 0.0f;
+
+    private float screen_to_ui_rate_x_ = 0.0f;
+    private float screen_to_ui_rate_y_ = 0.0f;
 
     private bool on_ui_edit_ = false;
 
     private bool on_attack_        = false;
     private bool on_camera_rotate_ = false;
     private bool on_camera_zoom_   = false;
+
+    void Start() {
+        reference_ = canvas_ccaler_.referenceResolution;
+
+        SetScreenToUIRate();
+    }
+
+#if UNITY_EDITOR
+    // Editor時はスクリーン可変を許容.
+    void Update() {
+        SetScreenToUIRate();
+    }
+#endif
+
+    private void SetScreenToUIRate() {
+        screen_w_ = (float)Screen.width;
+        screen_h_ = (float)Screen.height;
+
+        screen_to_ui_rate_x_ = reference_.x / screen_w_;
+        screen_to_ui_rate_y_ = reference_.y / screen_h_;
+    }
 
     void LateUpdate() {
         if (!on_ui_edit_) {
@@ -61,20 +92,47 @@ public class UIEdit : MonoBehaviour {
         if (on_attack_) {
             Vector2 now = attack_.anchoredPosition;
 
-            attack_.anchoredPosition = now + move_;
+            now += move_;
             move_ = Vector2.zero;
+
+            // アンカーは 0, 0.
+            Vector2 size = attack_.sizeDelta;
+
+            if (now.x >= 0.0f && now.y >= 0.0f &&
+                (now.x + size.x) <= reference_.x &&
+                (now.y + size.y) <= reference_.y) {
+                attack_.anchoredPosition = now;
+            }
         }
         else if (on_camera_rotate_) {
             Vector2 now = camera_rotate_.anchoredPosition;
 
-            camera_rotate_.anchoredPosition = now + move_;
+            now += move_;
             move_ = Vector2.zero;
+
+            // アンカーは 1, 1.
+            Vector2 size = camera_rotate_.sizeDelta;
+
+            if (now.x <= 0.0f && now.y <= 0.0f &&
+                now.x >= (-reference_.x + size.x) &&
+                now.y >= (-reference_.y + size.y)) {
+                camera_rotate_.anchoredPosition = now;
+            }
         }
         else if (on_camera_zoom_) {
             Vector2 now = camera_zoom_.anchoredPosition;
 
-            camera_zoom_.anchoredPosition = now + move_;
+            now += move_;
             move_ = Vector2.zero;
+
+            // アンカーは 1, 1.
+            Vector2 size = camera_zoom_.sizeDelta;
+
+            if (now.x <= 0.0f && now.y <= 0.0f &&
+                now.x >= (-reference_.x + size.x) &&
+                now.y >= (-reference_.y + size.y)) {
+                camera_zoom_.anchoredPosition = now;
+            }
         }
     }
 
@@ -85,7 +143,7 @@ public class UIEdit : MonoBehaviour {
             return;
         }
 
-        foreach (TouchPoint tp in e.Touches) {            move_ = tp.Position - tp.PreviousPosition;            break; // 最初の1つだけしか処理しない.        }
+        foreach (TouchPoint tp in e.Touches) {            move_ = tp.Position - tp.PreviousPosition;            // UI空間への変更.            move_.x *= screen_to_ui_rate_x_;            move_.y *= screen_to_ui_rate_y_;            break; // 最初の1つだけしか処理しない.        }
     }
 
     public void OnUIEdit() {
