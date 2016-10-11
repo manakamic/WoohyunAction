@@ -11,19 +11,27 @@
         on_rotate_right_ = false; // Cancel.
     }    public void OnUpCameraRotateLeft() {
         on_rotate_left_ = false;
+    }    public void OnExitCameraRotateLeft() {
+        on_rotate_left_ = false;
     }    public void OnDownCameraRotateRight() {
         on_rotate_right_ = true;
         on_rotate_left_ = false; // Cancel.
     }    public void OnUpCameraRotateRight() {
+        on_rotate_right_ = false;
+    }    public void OnExitCameraRotateRight() {
         on_rotate_right_ = false;
     }    public void OnDownCameraZoomUp() {
         on_zoom_up_ = true;
         on_zoom_down_ = false; // Cancel.
     }    public void OnUpCameraZoomUp() {
         on_zoom_up_ = false;
+    }    public void OnExitCameraZoomUp() {
+        on_zoom_up_ = false;
     }    public void OnDownCameraZoomDown() {
         on_zoom_down_ = true;
         on_zoom_up_ = false; // Cancel.
     }    public void OnUpCameraZoomDown() {
+        on_zoom_down_ = false;
+    }    public void OnExitCameraZoomDown() {
         on_zoom_down_ = false;
     }}
