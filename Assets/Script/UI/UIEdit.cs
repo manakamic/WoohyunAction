@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TouchScript;
+using Gesture;
 
 public class UIEdit : MonoBehaviour {
     private const string AttackX = "atk_x";
@@ -16,7 +16,7 @@ public class UIEdit : MonoBehaviour {
     private ScreenDrag screen_drag_ = null;
 
     [SerializeField]
-    private CanvasScaler canvas_ccaler_ = null;
+    private CanvasScaler canvas_scaler_ = null;
 
     [SerializeField]
     private Image full_screen_ = null;
@@ -63,8 +63,12 @@ public class UIEdit : MonoBehaviour {
     private bool on_camera_rotate_ = false;
     private bool on_camera_zoom_   = false;
 
+    private GesturePhase gesture_phase_;
+
     void Start() {
-        reference_ = canvas_ccaler_.referenceResolution;
+        gesture_phase_ = new GesturePhase(null, TouchesMovedHandler, null, null, null);
+
+        reference_ = canvas_scaler_.referenceResolution;
 
         SetScreenToUIRate();
     }
@@ -136,14 +140,16 @@ public class UIEdit : MonoBehaviour {
         }
     }
 
-    void OnEnable() {        if (TouchManager.Instance != null) {            TouchManager.Instance.TouchesMoved += TouchesMovedHandler;        }        LoadUIPosition();    }    void OnDisable() {        if (TouchManager.Instance != null) {            TouchManager.Instance.TouchesMoved -= TouchesMovedHandler;        }    }
-
-    private void TouchesMovedHandler(object sender, TouchEventArgs e) {
+    private void TouchesMovedHandler() {
         if (!on_ui_edit_) {
             return;
         }
 
-        foreach (TouchPoint tp in e.Touches) {            move_ = tp.Position - tp.PreviousPosition;            // UI空間への変更.            move_.x *= screen_to_ui_rate_x_;            move_.y *= screen_to_ui_rate_y_;            break; // 最初の1つだけしか処理しない.        }
+        move_ = gesture_phase_.deltaPos;
+
+        // UI空間への変更.
+        move_.x *= screen_to_ui_rate_x_;
+        move_.y *= screen_to_ui_rate_y_;
     }
 
     public void OnUIEdit() {
