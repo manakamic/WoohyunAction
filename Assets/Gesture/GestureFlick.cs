@@ -19,6 +19,8 @@ namespace Gesture {
             GestureManager.instance.AddFlick(this);
         }
 
+
+
         public override void Destroy() {
             base.Destroy();
             // 明示的に登録を削除する.
